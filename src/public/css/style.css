@@ -1,6 +1,6 @@
 :root {
-  --primary: #CC0000;
-  --primary-dark: #A30000;
+  --primary: #0098DD;
+  --primary-dark: #0080BB;
   --header-bg: #1E2137;
   --text: #333333;
   --text-muted: #6b7280;
@@ -179,8 +179,8 @@ body {
   transition: border-color 0.15s, background 0.15s;
   user-select: none;
 }
-.option:hover { border-color: var(--primary); background: #fff5f5; }
-.option.selected { border-color: var(--primary); background: #fff5f5; }
+.option:hover { border-color: var(--primary); background: #f0f9ff; }
+.option.selected { border-color: var(--primary); background: #f0f9ff; }
 .option.correct { border-color: var(--correct); background: var(--correct-bg); }
 .option.wrong { border-color: var(--wrong); background: var(--wrong-bg); }
 .option.disabled { cursor: default; }
