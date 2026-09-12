@@ -1,0 +1,77 @@
+import { Router } from 'express';
+import { writeFile } from 'fs/promises';
+import { existsSync } from 'fs';
+import { mkdirSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { questions } from '../data/questions.js';
+import { sendResultEmail } from '../services/mailer.js';
+
+const router = Router();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const RESULTS_DIR = join(__dirname, '../../data/results');
+
+if (!existsSync(RESULTS_DIR)) mkdirSync(RESULTS_DIR, { recursive: true });
+
+const questionMap = new Map(questions.map(q => [q.id, q]));
+
+router.post('/', async (req, res) => {
+  try {
+    const { name, position, answers, questionIds, variantNum } = req.body;
+
+    if (
+      !name ||
+      !Array.isArray(answers) ||
+      !Array.isArray(questionIds) ||
+      answers.length !== questionIds.length ||
+      answers.length === 0
+    ) {
+      return res.status(400).json({ error: 'Неверные данные' });
+    }
+
+    const selectedQuestions = questionIds.map(id => questionMap.get(id)).filter(Boolean);
+    if (selectedQuestions.length !== answers.length) {
+      return res.status(400).json({ error: 'Неверные данные' });
+    }
+
+    const graded = selectedQuestions.map((q, i) => ({
+      questionId: q.id,
+      questionText: q.text,
+      selectedIndex: answers[i],
+      selectedText: q.options[answers[i]] ?? '—',
+      correctIndex: q.correct,
+      correctText: q.options[q.correct],
+      isCorrect: answers[i] === q.correct,
+    }));
+
+    const score = graded.filter(a => a.isCorrect).length;
+    const result = {
+      id: Date.now(),
+      name,
+      position: position || '',
+      variantNum: variantNum || 1,
+      score,
+      total: selectedQuestions.length,
+      answers: graded,
+      submittedAt: new Date().toISOString(),
+    };
+
+    const filePath = join(RESULTS_DIR, `${result.id}.json`);
+    await writeFile(filePath, JSON.stringify(result, null, 2), 'utf8');
+
+    if (process.env.MANAGER_EMAIL) {
+      try {
+        await sendResultEmail(result);
+      } catch (emailErr) {
+        console.error('Email не отправлен:', emailErr.message);
+      }
+    }
+
+    res.json({ score, total: selectedQuestions.length, graded });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+export default router;
