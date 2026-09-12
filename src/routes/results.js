@@ -17,31 +17,29 @@ const questionMap = new Map(questions.map(q => [q.id, q]));
 
 router.post('/', async (req, res) => {
   try {
-    const { name, position, answers, questionIds, variantNum } = req.body;
+    const { name, position, answerTexts, questionIds, variantNum } = req.body;
 
     if (
       !name ||
-      !Array.isArray(answers) ||
+      !Array.isArray(answerTexts) ||
       !Array.isArray(questionIds) ||
-      answers.length !== questionIds.length ||
-      answers.length === 0
+      answerTexts.length !== questionIds.length ||
+      answerTexts.length === 0
     ) {
       return res.status(400).json({ error: 'Неверные данные' });
     }
 
     const selectedQuestions = questionIds.map(id => questionMap.get(id)).filter(Boolean);
-    if (selectedQuestions.length !== answers.length) {
+    if (selectedQuestions.length !== answerTexts.length) {
       return res.status(400).json({ error: 'Неверные данные' });
     }
 
     const graded = selectedQuestions.map((q, i) => ({
       questionId: q.id,
       questionText: q.text,
-      selectedIndex: answers[i],
-      selectedText: q.options[answers[i]] ?? '—',
-      correctIndex: q.correct,
+      selectedText: answerTexts[i] ?? '—',
       correctText: q.options[q.correct],
-      isCorrect: answers[i] === q.correct,
+      isCorrect: answerTexts[i] === q.options[q.correct],
     }));
 
     const score = graded.filter(a => a.isCorrect).length;

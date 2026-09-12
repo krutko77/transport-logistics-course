@@ -1,12 +1,13 @@
 import { questions as ALL_QUESTIONS } from '/data/questions.js';
 
-// 3 варианта по 25 вопросов — в каждом ровно по 5 вопросов из каждого
+// 2 варианта по 25 вопросов — в каждом ровно по 5 вопросов из каждого
 // из 5 блоков материалов курса (блок 1: id 1–10, блок 2: id 11–20,
-// блок 3: id 21–27, блок 4: id 28–36, блок 5: id 37–45)
+// блок 3: id 21–27, блок 4: id 28–36, блок 5: id 37–45).
+// Вместе оба варианта покрывают все 45 вопросов банка без пропусков —
+// последовательное прохождение обоих вариантов даёт полное покрытие курса.
 const VARIANTS = [
   [1, 2, 3, 4, 5, 11, 12, 13, 14, 15, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 37, 38, 39, 40, 41],
-  [4, 5, 6, 7, 8, 14, 15, 16, 17, 18, 23, 24, 25, 26, 27, 31, 32, 33, 34, 35, 40, 41, 42, 43, 44],
-  [1, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22, 25, 26, 27, 28, 29, 34, 35, 36, 37, 38, 43, 44, 45],
+  [6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 23, 24, 25, 26, 27, 32, 33, 34, 35, 36, 41, 42, 43, 44, 45],
 ];
 
 const STORAGE_KEY = 'tlc_variant';
@@ -39,10 +40,23 @@ function advanceVariant() {
   localStorage.setItem(STORAGE_KEY, String(next));
 }
 
+function shuffleOptions(q) {
+  const indices = q.options.map((_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  return {
+    ...q,
+    options: indices.map(i => q.options[i]),
+    correct: indices.indexOf(q.correct),
+  };
+}
+
 function buildVariantQuestions() {
   const ids = VARIANTS[getVariantIndex()];
   const map = Object.fromEntries(ALL_QUESTIONS.map(q => [q.id, q]));
-  return ids.map(id => map[id]).filter(Boolean);
+  return ids.map(id => map[id]).filter(Boolean).map(shuffleOptions);
 }
 
 let state = {
@@ -221,7 +235,7 @@ async function renderResult() {
       body: JSON.stringify({
         name: state.name,
         position: state.position,
-        answers: state.answers,
+        answerTexts: state.answers.map((a, i) => state.questions[i].options[a] ?? null),
         questionIds: state.questions.map(q => q.id),
         variantNum: state.variantNum,
       }),
