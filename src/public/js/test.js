@@ -201,7 +201,7 @@ async function renderResult() {
       <div class="result-item ${ok ? 'correct' : 'wrong'}">
         <div class="result-item__header">
           <span class="result-item__icon">${ok ? '✓' : '✗'}</span>
-          <span class="result-item__q">${q.id}. ${q.text}</span>
+          <span class="result-item__q">${i + 1}. ${q.text}</span>
         </div>
         ${!ok ? `<div class="result-item__answer">
           Ваш ответ: ${q.options[state.answers[i]]}<br>

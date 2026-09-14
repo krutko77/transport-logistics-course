@@ -7,7 +7,7 @@ function buildHtml(result) {
 
   const answersHtml = answers.map(a => `
     <tr style="background:${a.isCorrect ? '#f0fdf4' : '#fef2f2'}">
-      <td style="padding:8px;border:1px solid #e5e7eb;color:#6b7280">${a.questionId}</td>
+      <td style="padding:8px;border:1px solid #e5e7eb;color:#6b7280">${a.questionNumber}</td>
       <td style="padding:8px;border:1px solid #e5e7eb">${a.questionText}</td>
       <td style="padding:8px;border:1px solid #e5e7eb">${a.selectedText}</td>
       <td style="padding:8px;border:1px solid #e5e7eb;text-align:center">${a.isCorrect ? '✓' : '✗'}</td>

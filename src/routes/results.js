@@ -35,6 +35,7 @@ router.post('/', async (req, res) => {
     }
 
     const graded = selectedQuestions.map((q, i) => ({
+      questionNumber: i + 1,
       questionId: q.id,
       questionText: q.text,
       selectedText: answerTexts[i] ?? '—',
