@@ -1,4 +1,4 @@
-# [ШАБЛОН] Новый проект — Битрикс24 / VibeCode
+# Тест по курсу "Транспортная логистика" — инструкции для Клода
 
 ---
 
@@ -6,49 +6,19 @@
 
 **Язык рассуждений:** все рассуждения и весь текст, адресованный сотруднику (в чате, в комментариях, в коммитах), веди на русском языке.
 
-**Проверь наличие файла `.onboarding-done` в корне проекта:**
-- Файла нет → онбординг не пройден. Напиши: *"Привет! Давай настроим проект. Я задам несколько вопросов — по одному. Начнём?"* Затем следуй протоколу онбординга.
-- Файл есть → онбординг пройден. Читай раздел "О ПРОЕКТЕ" и работай в рамках проекта.
+Онбординг проекта пройден (см. `.onboarding-done` в корне) — читай раздел
+"О ПРОЕКТЕ" и работай в рамках проекта.
+
+**В начале новой сессии:** прочитай только `docs/state.md`, чтобы понять
+текущее состояние проекта. Не открывай `docs/last-session.md` и
+`docs/handoff.md` автоматически — это экономит контекст. Открывай их
+только если: (а) сотрудник явно просит подробности о прошлой сессии,
+(б) `state.md` не даёт достаточно контекста для текущей задачи, либо
+(в) сессию явно передают другому исполнителю.
 
 **Два режима работы:**
 - **Чат** (сотрудник пишет тебе вопросы) — отвечай, объясняй, запускай команды сам через агента.
 - **Задача из Kanban** (тебе прилетает задача без диалога) — читай CLAUDE.md, выполняй задачу автономно, без лишних вопросов. Если чего-то не хватает для выполнения — сообщи об этом в конце, не останавливайся на середине.
-
----
-
-## ПРОТОКОЛ ОНБОРДИНГА
-
-Задавай вопросы **строго по одному**. После каждого ответа — следующий вопрос.
-Для каждого вопроса: объясни варианты, подсвети рекомендуемый словом **→ Рекомендую**.
-После всех ответов — выполни шаги из раздела "После всех ответов".
-
----
-
-### Вопрос 1 — Название и суть
-
-*"Как называется проект и что он делает? Одной-двумя фразами."*
-
-*(Пример: "Пульт24 — дашборд аналитики продаж для менеджеров")*
-
----
-
-### Вопрос 3 — Где будет жить приложение
-
-*"Где мы разместим приложение?"*
-
-**Варианты:**
-- **Свой сервер** — полный контроль, но требует ручной настройки.
-  Выбирай если: нужны особые требования к безопасности или уже есть инфраструктура.
-- **Ещё не знаю** — запишем, разберёмся позже.
-
-
-### После всех ответов
-
-1. Обнови раздел "О ПРОЕКТЕ" ниже — замени все `{{PLACEHOLDER}}` реальными значениями
-2. Создай файл `.onboarding-done` в корне проекта (пустой файл — маркер завершения онбординга)
-3. Создай `docs/project-brief.md` с итогами онбординга
-4. Запусти `npm install` и `npm run check` — убедись что API подключён
-5. Скажи сотруднику: что настроено, что нужно от него дальше (например, вставить API-ключ в `.env`)
 
 ---
 
@@ -58,143 +28,27 @@
 
 **Название:** Тест по курсу "Транспортная логистика"
 **Описание:** Тест для менеджера операционного отдела ЕС Транс по ГФД. Сотрудник проходит тест по ссылке, результаты сохраняются и отправляются руководителю на почту.
-**Портал Б24:** не определён
-**Размещение:** свой сервер
-**Подключение к Б24:** без Битрикс24 (данные Б24 не используются)
+**Размещение:** свой сервер (деплой через `vibe-deploy-service`)
 **Где открывается:** отдельная страница в браузере
-**Бэкенд:** Node.js (Express) — для сохранения результатов и отправки email через Resend
+**Бэкенд:** Node.js (Express) — для сохранения результатов и отправки email через UniSender Go
 **Дизайн:** корпоративный стиль ЕС Транс (белый фон, красный акцент, тёмный текст)
 **Авторизация:** не нужна — приложение открыто по ссылке
 
 **Специфика проекта** (заполняется по ходу работы):
-- Ключ API: не используется (нет Б24)
 - SERVER_ID: не определён
 - App URL: не определён
 - Email руководителя: `MANAGER_EMAIL=kpv@es-trans.pro` (заполнить в `.env`)
-- Resend API: заполнить `RESEND_API_KEY` и `RESEND_FROM` в `.env`
+- UniSender Go: заполнить `UNISENDER_GO_API_KEY`, `UNISENDER_GO_USER_ID`,
+  `UNISENDER_GO_API_URL`, `UNISENDER_GO_FROM` в `.env`
 
 ---
 
 ## СТЕК И ИНСТРУМЕНТЫ
 
-Это стандартный стек для всех проектов. Не менять без необходимости.
-
 - **Node.js 20** + ES modules (`"type": "module"` в package.json)
 - **Express 4** — веб-сервер
 - **Vanilla JS + CSS** — фронтенд без фреймворков (меньше зависимостей → быстрый деплой)
-- **VibeCode API** — прокси к данным Битрикс24: `https://vibecode.bitrix24.tech/v1`
-- **Chart.js** (через CDN) — если нужны графики
-
----
-
-## Структура файлов
-
-```
-project/
-├── src/
-│   ├── server.js               ← точка входа Express
-│   ├── data/
-│   │   └── questions.js        ← банк вопросов (export const questions = [...])
-│   ├── routes/
-│   │   └── results.js          ← POST /api/results
-│   ├── services/
-│   │   └── mailer.js           ← отправка email через Resend
-│   └── public/
-│       ├── index.html
-│       ├── css/style.css
-│       └── js/test.js          ← вся логика теста на фронтенде
-├── .env                        ← секреты (не в git)
-└── .env.example
-```
----
-
-## КЛЮЧИ И БЕЗОПАСНОСТЬ
-
-**Правило №1: Ключи никогда не попадают в код и в git.**
-
-Все ключи хранятся в файле `.env`. Этот файл есть в `.gitignore`.
-В git попадает только `.env.example` — шаблон без реальных значений.
-
-**Типы ключей VibeCode:**
-
-| Тип | Префикс | Когда использовать |
-|-----|---------|-------------------|
-| API-ключ | `vibe_api_...` | Личный дашборд, скрипты, один портал |
-| OAuth-приложение | `vibe_app_...` | Команда, у каждого свои права в Б24 |
-| Менеджмент | `vibe_live_...` | Только для администрирования, не для данных |
-
-**Переменные `.env` (стандартный набор):**
-
-```
-# VibeCode
-VIBE_API_KEY=vibe_api_...         # API-ключ портала
-VIBE_BASE_URL=https://vibecode.bitrix24.tech/v1
-
-# Сервер (заполняется после первого деплоя)
-SERVER_ID=                         # ID сервера на Vibecode
-PORT=3000
-NODE_ENV=production
-```
-
-**Где получить ключ:** https://vibecode.bitrix24.tech → Ключи API → Создать
-
-**Правило №2: При подозрении на утечку ключа — сразу отозвать** в личном кабинете Vibecode и создать новый. Обновить `.env` на сервере.
-
----
-
-## КОМАНДЫ
-
-```bash
-npm install        # установить зависимости (первый раз)
-npm run check      # проверить подключение к VibeCode API → должно быть "API connection OK"
-npm run dev        # запустить локально с авто-перезагрузкой
-npm start          # запустить в продакшн-режиме
-npm run deploy     # задеплоить на Vibecode (= bash deploy.sh)
-```
-
-**Первый запуск нового проекта:**
-```bash
-npm install
-# вставь VIBE_API_KEY в .env
-npm run check
-```
-
----
-
-## ПАТТЕРНЫ РАЗРАБОТКИ
-
-Эти правила выработаны из реальных проектов. Следовать им по умолчанию.
-
-### API-клиент
-- VibeCode может возвращать данные в двух форматах: `data.result` и `data.data` — всегда проверяй оба
-- Пагинация: запрашивай по 50 записей, повторяй пока результат < limit
-- Батчи: до 25 параллельных запросов (больше — риск попасть в rate limit: 60 запросов/мин)
-
-### Кеширование
-- Тяжёлые отчёты: храни в памяти (Map) + дублируй на диск (JSON)
-- На сервере Vibecode: кеш в `/opt/data/` — переживает деплой
-- Локально: папка `data/` (в .gitignore)
-
-### Деплой на Vibecode
-- `cleanDeploy=true` — чистая установка каждый раз (папка `/opt/app/` стирается)
-- Данные храни в `/opt/data/`, не в `/opt/app/`
-- Runtime: `node20`
-
-### Фронтенд
-- Vanilla JS + CSS — никаких фреймворков без явной необходимости
-- CSS custom properties (`--var`) для цветов и отступов — легко менять тему
-- Chart.js через CDN — не тащить в сборку
-
----
-
-# Шаблон: Приложение-тест для сотрудников
-
-Паттерны и готовые решения на основе проекта ЕС Транс.
-Стек: **Node.js 20 + Express 4 + Vanilla JS + Resend API**.
-
----
-
-## Стек и зависимости
+- **UniSender Go** — отправка email (HTTP API)
 
 ```json
 {
@@ -205,11 +59,48 @@ npm run check
   },
   "dependencies": {
     "express": "^4.18.2",
-    "resend": "^4.0.0",
-    "nodemailer": "^6.9.0"
+    "dotenv": "^16.0.0"
   }
 }
 ```
+
+---
+
+## КЛЮЧИ И БЕЗОПАСНОСТЬ
+
+**Правило №1: Ключи никогда не попадают в код и в git.**
+
+Все ключи хранятся в файле `.env`. Этот файл есть в `.gitignore`.
+В git попадает только `.env.example` — шаблон без реальных значений.
+Актуальный набор переменных — см. раздел ".env шаблон" ниже.
+
+**Правило №2: При подозрении на утечку ключа — сразу отозвать** в личном кабинете UniSender и создать новый. Обновить `.env` на сервере.
+
+---
+
+## КОМАНДЫ
+
+```bash
+npm install        # установить зависимости (первый раз)
+npm run dev        # запустить локально с авто-перезагрузкой
+npm start          # запустить в продакшн-режиме
+```
+
+---
+
+## ПАТТЕРНЫ РАЗРАБОТКИ
+
+- CSS custom properties (`--var`) для цветов и отступов — легко менять тему
+- Деплой — только через `vibe-deploy-service` (см. раздел ниже), никогда по SSH
+
+---
+
+## Реализация теста
+
+> Почта отправляется через **UniSender Go** (российский сервис, HTTP Web
+> API) — выбран из-за юридических рисков по 152-ФЗ/242-ФЗ при передаче ПДн
+> сотрудников за рубеж и блокировки прямого SMTP на хостинге. См.
+> `docs/decisions.md`.
 
 ---
 
@@ -224,7 +115,7 @@ project/
 │   ├── routes/
 │   │   └── results.js          ← POST /api/results
 │   ├── services/
-│   │   └── mailer.js           ← отправка email через Resend
+│   │   └── mailer.js           ← отправка email через UniSender Go
 │   └── public/
 │       ├── index.html
 │       ├── css/style.css
@@ -417,19 +308,17 @@ export default router;
 
 ---
 
-## Email-сервис (Resend)
+## Email-сервис (UniSender Go)
 
 ```js
 // src/services/mailer.js
-import { Resend } from 'resend';
-
 function buildHtml(result) {
   const { name, position, score, total, answers, submittedAt } = result;
   const percent = Math.round((score / total) * 100);
 
   const answersHtml = answers.map(a => `
     <tr style="background:${a.isCorrect ? '#f0fdf4' : '#fef2f2'}">
-      <td style="padding:8px;border:1px solid #e5e7eb;color:#6b7280">${a.questionId}</td>
+      <td style="padding:8px;border:1px solid #e5e7eb;color:#6b7280">${a.questionNumber}</td>
       <td style="padding:8px;border:1px solid #e5e7eb">${a.questionText}</td>
       <td style="padding:8px;border:1px solid #e5e7eb">${a.selectedText}</td>
       <td style="padding:8px;border:1px solid #e5e7eb;text-align:center">${a.isCorrect ? '✓' : '✗'}</td>
@@ -471,15 +360,33 @@ function buildHtml(result) {
 
 export async function sendResultEmail(result) {
   const { subject, html } = buildHtml(result);
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  await resend.emails.send({
-    from: process.env.RESEND_FROM,
-    to: process.env.MANAGER_EMAIL,
-    subject,
-    html,
+
+  const response = await fetch(`${process.env.UNISENDER_GO_API_URL}/ru/transactional/api/v1/email/send.json`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      apiKey: process.env.UNISENDER_GO_API_KEY,
+      user_id: process.env.UNISENDER_GO_USER_ID,
+      message: {
+        recipients: [{ email: process.env.MANAGER_EMAIL }],
+        subject,
+        from_email: process.env.UNISENDER_GO_FROM,
+        from_name: 'Компания Тест',
+        body: { html },
+      },
+    }),
   });
+
+  const data = await response.json();
+  if (!response.ok || data.status === 'error') {
+    throw new Error(`UniSender Go: ${data.message || response.statusText}`);
+  }
 }
 ```
+
+Ключ, `user_id` и адрес получателя передаются в **теле JSON**, не в
+заголовке — так подтверждено эмпирически через тестовый запрос в личном
+кабинете UniSender.
 
 ### Ключевые правила email
 
@@ -499,18 +406,20 @@ NODE_ENV=production
 # Email руководителя
 MANAGER_EMAIL=manager@company.ru
 
-# Resend API (resend.com → API Keys)
-RESEND_API_KEY=re_...
-# После верификации домена заменить на корпоративный адрес:
-RESEND_FROM=Компания Тест <noreply@company.ru>
+# UniSender Go (go2.unisender.ru → Настройки → API)
+UNISENDER_GO_API_KEY=...
+UNISENDER_GO_USER_ID=...
+UNISENDER_GO_API_URL=https://go2.unisender.ru
+UNISENDER_GO_FROM=noreply@company.ru
 ```
 
-### Получение Resend API ключа
+### Получение UniSender Go API ключа
 
-1. Зарегистрироваться на resend.com
-2. Добавить домен → пройти верификацию DNS
-3. API Keys → Create API Key
-4. Вставить ключ в `.env` как `RESEND_API_KEY`
+1. Зарегистрироваться на unisender.com → раздел Go.
+2. Подтвердить домен отправки (DKIM) в личном кабинете.
+3. Настроить хотя бы один рабочий домен ссылок (tracking domain) —
+   без него API возвращает `code 229` и письма не отправляются.
+4. Настройки → API → скопировать ключ и `user_id` в `.env`.
 
 ---
 
@@ -591,7 +500,7 @@ curl -X POST http://172.30.0.1:8191/deploy \
 - [ ] Убедиться что ключевые вопросы есть в каждом варианте
 - [ ] Настроить поля стартового экрана: ФИО + Должность
 - [ ] Настроить email: заголовок + подзаголовок + должность + дата (без времени)
-- [ ] Заполнить `.env`: RESEND_API_KEY, RESEND_FROM, MANAGER_EMAIL, PORT
+- [ ] Заполнить `.env`: UNISENDER_GO_API_KEY, UNISENDER_GO_USER_ID, UNISENDER_GO_FROM, MANAGER_EMAIL, PORT
 - [ ] Создать `.vibe-deploy.json` с доменом и `entry`
 - [ ] Задеплоить через `vibe-deploy-service` (`curl -X POST http://172.30.0.1:8191/deploy ...`)
 - [ ] Проверить: пройти тест → прийти письмо руководителю
@@ -602,7 +511,8 @@ curl -X POST http://172.30.0.1:8191/deploy \
 
 | Ошибка | Причина | Решение |
 |--------|---------|---------|
-| Email не приходит | SMTP заблокирован на VPS | Использовать Resend (HTTP API), не SMTP |
+| Email не приходит | SMTP заблокирован на VPS | Использовать UniSender Go (HTTP API), не SMTP |
+| API возвращает `code 229` | Нет рабочего домена ссылок (tracking domain) в UniSender | Настроить и дождаться подтверждения хотя бы одного домена ссылок |
 | Все правильные ответы — Б | Не проверили распределение | Пересмотреть `correct` в questions.js |
 | Вариант не меняется при повторе | `advanceVariant()` не вызван | Вызвать при клике "Начать тест" |
 | Время показывается в дате | Использован `toLocaleString()` | Заменить на `toLocaleDateString('ru-RU')` |

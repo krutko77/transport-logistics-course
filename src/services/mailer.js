@@ -1,5 +1,3 @@
-import nodemailer from 'nodemailer';
-import { Resend } from 'resend';
 
 function buildHtml(result) {
   const { name, position, score, total, answers, submittedAt } = result;
@@ -50,36 +48,27 @@ function buildHtml(result) {
 export async function sendResultEmail(result) {
   const { subject, html } = buildHtml(result);
 
-  // Resend (HTTP API) — работает даже если SMTP порты заблокированы
-  if (process.env.RESEND_API_KEY) {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
-      from: process.env.RESEND_FROM || 'ЕС Транс Тест <onboarding@resend.dev>',
-      to: process.env.MANAGER_EMAIL,
-      subject,
-      html,
-    });
-    return;
-  }
-
-  // Fallback: SMTP через nodemailer
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: false,
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+  const response = await fetch(`${process.env.UNISENDER_GO_API_URL}/ru/transactional/api/v1/email/send.json`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
     },
+    body: JSON.stringify({
+      apiKey: process.env.UNISENDER_GO_API_KEY,
+      user_id: process.env.UNISENDER_GO_USER_ID,
+      message: {
+        recipients: [{ email: process.env.MANAGER_EMAIL }],
+        subject,
+        from_email: process.env.UNISENDER_GO_FROM,
+        from_name: 'ЕС Транс Тест',
+        body: { html },
+      },
+    }),
   });
 
-  await transporter.sendMail({
-    from: `"ЕС Транс Тест" <${process.env.SMTP_USER}>`,
-    to: process.env.MANAGER_EMAIL,
-    subject,
-    html,
-  });
+  const data = await response.json();
+  if (!response.ok || data.status === 'error') {
+    throw new Error(`UniSender Go: ${data.message || response.statusText}`);
+  }
 }
