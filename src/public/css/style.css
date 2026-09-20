@@ -26,7 +26,7 @@ body {
 
 /* Header */
 .header {
-  background: var(--bg);
+  background: var(--bg-light);
   border-bottom: 1px solid var(--border);
 }
 .header__inner {
