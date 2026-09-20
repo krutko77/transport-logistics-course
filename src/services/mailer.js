@@ -62,6 +62,8 @@ export async function sendResultEmail(result) {
         from_email: process.env.UNISENDER_GO_FROM,
         from_name: 'ЕС Транс Тест',
         body: { html },
+        skip_unsubscribe: 1,
+        track_links: 0,
       },
     }),
   });
