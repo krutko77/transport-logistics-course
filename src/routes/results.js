@@ -58,15 +58,21 @@ router.post('/', async (req, res) => {
     const filePath = join(RESULTS_DIR, `${result.id}.json`);
     await writeFile(filePath, JSON.stringify(result, null, 2), 'utf8');
 
+    let emailSent = false;
+    let emailError = null;
     if (process.env.MANAGER_EMAIL) {
       try {
         await sendResultEmail(result);
+        emailSent = true;
       } catch (emailErr) {
+        emailError = emailErr.message;
         console.error('Email не отправлен:', emailErr.message);
       }
+    } else {
+      emailError = 'MANAGER_EMAIL не задан';
     }
 
-    res.json({ score, total: selectedQuestions.length, graded });
+    res.json({ score, total: selectedQuestions.length, graded, emailSent, emailError });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Внутренняя ошибка сервера' });

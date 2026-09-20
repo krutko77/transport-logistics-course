@@ -233,7 +233,7 @@ async function renderResult() {
   });
 
   try {
-    await fetch('/api/results', {
+    const res = await fetch('/api/results', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -244,7 +244,10 @@ async function renderResult() {
         variantNum: state.variantNum,
       }),
     });
-    document.getElementById('sendingMsg').textContent = 'Результаты сохранены и отправлены руководителю.';
+    const data = await res.json();
+    document.getElementById('sendingMsg').textContent = data.emailSent
+      ? 'Результаты сохранены и отправлены руководителю.'
+      : 'Результаты сохранены, но письмо руководителю не отправлено.';
   } catch {
     document.getElementById('sendingMsg').textContent = 'Результаты сохранены.';
   }
