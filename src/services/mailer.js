@@ -53,10 +53,9 @@ export async function sendResultEmail(result) {
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      'X-API-KEY': process.env.UNISENDER_GO_API_KEY,
     },
     body: JSON.stringify({
-      apiKey: process.env.UNISENDER_GO_API_KEY,
-      user_id: process.env.UNISENDER_GO_USER_ID,
       message: {
         recipients: [{ email: process.env.MANAGER_EMAIL }],
         subject,
