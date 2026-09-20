@@ -363,10 +363,12 @@ export async function sendResultEmail(result) {
 
   const response = await fetch(`${process.env.UNISENDER_GO_API_URL}/ru/transactional/api/v1/email/send.json`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'X-API-KEY': process.env.UNISENDER_GO_API_KEY,
+    },
     body: JSON.stringify({
-      apiKey: process.env.UNISENDER_GO_API_KEY,
-      user_id: process.env.UNISENDER_GO_USER_ID,
       message: {
         recipients: [{ email: process.env.MANAGER_EMAIL }],
         subject,
@@ -384,9 +386,13 @@ export async function sendResultEmail(result) {
 }
 ```
 
-Ключ, `user_id` и адрес получателя передаются в **теле JSON**, не в
-заголовке — так подтверждено эмпирически через тестовый запрос в личном
-кабинете UniSender.
+Ключ передаётся в заголовке **`X-API-KEY`**, не в теле JSON — подтверждено
+эмпирически прямым curl-запросом к API 2026-09-20 (`apiKey` в теле давал
+`code 101: API key is missing`, а `X-API-KEY` в заголовке — `status:
+success`). `user_id` в запросе не требуется. Прежняя версия этого раздела
+утверждала обратное («в теле JSON, не в заголовке») — этот вывод оказался
+ошибочным (либо контракт API изменился) и стал причиной того, что письма
+с результатами тестов переставали доходить до руководителя.
 
 ### Ключевые правила email
 
