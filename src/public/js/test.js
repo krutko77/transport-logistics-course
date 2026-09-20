@@ -18,6 +18,8 @@ const PASSED_KEY = 'tlc_last_passed';
 const COOLDOWN_MS = 8 * 60 * 60 * 1000;
 
 function getCooldownUntil() {
+  return null; // временно отключено по просьбе сотрудника — см. docs/state.md
+  // eslint-disable-next-line no-unreachable
   const last = parseInt(localStorage.getItem(ATTEMPT_KEY) || '0', 10);
   const passed = localStorage.getItem(PASSED_KEY) === 'true';
   if (!last || passed) return null;
