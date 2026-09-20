@@ -27,7 +27,7 @@ body {
 /* Header */
 .header {
   background: var(--bg-light);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #4A4A48;
 }
 .header__inner {
   width: 100%;
