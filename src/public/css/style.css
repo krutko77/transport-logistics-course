@@ -159,6 +159,13 @@ body {
   font-weight: 600;
   line-height: 1.55;
   margin-bottom: 24px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.option__text {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .options {

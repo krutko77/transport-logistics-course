@@ -8,18 +8,16 @@ import { questions as ALL_QUESTIONS } from '/data/questions.js';
 // Вместе оба варианта покрывают все 54 вопроса банка без пропусков и без пересечений —
 // последовательное прохождение обоих вариантов даёт полное покрытие курса.
 const VARIANTS = [
-  [1, 2, 3, 4, 5, 11, 12, 13, 14, 15, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 37, 38, 46, 47, 48, 51, 53],
-  [6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 26, 27, 33, 34, 35, 36, 50, 39, 40, 41, 42, 43, 44, 45, 49, 52, 54],
+  [1, 2, 3, 4, 5, 11, 12, 13, 14, 15, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 37, 38, 46, 47, 45, 51, 53],
+  [6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 26, 27, 33, 34, 35, 36, 50, 39, 40, 41, 42, 43, 44, 48, 49, 52, 54],
 ];
 
 const STORAGE_KEY = 'tlc_variant';
 const ATTEMPT_KEY = 'tlc_last_attempt';
 const PASSED_KEY = 'tlc_last_passed';
-const COOLDOWN_MS = 8 * 60 * 60 * 1000;
+const COOLDOWN_MS = 9 * 60 * 60 * 1000;
 
 function getCooldownUntil() {
-  return null; // временно отключено по просьбе сотрудника — см. docs/state.md
-  // eslint-disable-next-line no-unreachable
   const last = parseInt(localStorage.getItem(ATTEMPT_KEY) || '0', 10);
   const passed = localStorage.getItem(PASSED_KEY) === 'true';
   if (!last || passed) return null;
@@ -88,7 +86,7 @@ function renderStart() {
   app.innerHTML = `
     <div class="card">
       <h1 class="start-title">Тест по курсу «Транспортная логистика»</h1>
-      <p class="start-desc">25 вопросов · все разделы курса · один правильный ответ на вопрос</p>
+      <p class="start-desc">27 вопросов · все разделы курса · один правильный ответ на вопрос</p>
       <div class="form-group">
         <label for="name">Ваши имя и фамилия</label>
         <input id="name" type="text" placeholder="Иванов Иван" autocomplete="off" ${cooldownUntil ? 'disabled' : ''} />
@@ -160,11 +158,16 @@ function renderQuestion() {
       </div>
       <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
       <div class="section-tag">${q.section}</div>
-      <p class="question-text">${q.text}</p>
+      <p class="question-text" oncopy="return false" oncontextmenu="return false">${q.text}</p>
       <div class="options">${optionsHtml}</div>
       <button class="btn btn-nav" id="actionBtn" ${state.selected === null ? 'disabled' : ''}>${btnLabel}</button>
     </div>
   `;
+
+  document.querySelectorAll('.option__text').forEach(el => {
+    el.oncopy = () => false;
+    el.oncontextmenu = () => false;
+  });
 
   document.querySelectorAll('.option:not(.disabled)').forEach(el => {
     el.addEventListener('click', () => {
